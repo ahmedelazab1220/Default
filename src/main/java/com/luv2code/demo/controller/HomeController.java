@@ -1,5 +1,7 @@
 package com.luv2code.demo.controller;
 
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,11 +17,13 @@ public class HomeController {
 	}
 
 	@GetMapping("/user")
+	@PreAuthorize("hasAuthority('USER')")
 	public String user() {
 		return "Hi user!";
 	}
 
 	@GetMapping("/root")
+	@PostAuthorize("hasAuthority('ADMIN') or hasAuthority('USER')")
 	public String root() {
 		return "Hi root!";
 	}

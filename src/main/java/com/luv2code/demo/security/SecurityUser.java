@@ -1,9 +1,10 @@
 package com.luv2code.demo.security;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.luv2code.demo.entity.User;
@@ -17,8 +18,8 @@ public class SecurityUser implements UserDetails {
 	private final User user;
 
 	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {		
-		return  user.getRole().stream().map(SecurityAuthority::new).collect(Collectors.toList());
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		return List.of(new SimpleGrantedAuthority(user.getRole().name()));
 	}
 
 	@Override

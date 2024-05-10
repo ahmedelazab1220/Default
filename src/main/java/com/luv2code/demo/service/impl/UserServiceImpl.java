@@ -53,10 +53,11 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public UserDetails loadUserByUsername(String username) {
 		Optional<User> user = userRepository.findByUsername(username);
+		
 		if (!user.isPresent()) {
 			throw new UsernameNotFoundException("User Not Found!");
 		}
-
+		
 		return user.map(SecurityUser::new).get();
 	}
 
