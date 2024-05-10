@@ -17,9 +17,8 @@ public class SecurityUser implements UserDetails {
 	private final User user;
 
 	@Override
-	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return user.getRole().stream().map(role -> (GrantedAuthority) () -> role.getName())
-				.collect(Collectors.toList());
+	public Collection<? extends GrantedAuthority> getAuthorities() {		
+		return  user.getRole().stream().map(SecurityAuthority::new).collect(Collectors.toList());
 	}
 
 	@Override
