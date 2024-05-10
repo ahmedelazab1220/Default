@@ -38,7 +38,7 @@ public class SecurityConfig {
 		http.csrf(csrf -> csrf.disable())
 				.authorizeHttpRequests(request -> 
 				 request.requestMatchers("/api/v2/auth", "/api/v1/auth/**").permitAll()
-				.requestMatchers("/api/v2/auth/admin").hasRole("ADMIN")
+				.requestMatchers("/api/v2/auth/admin").hasAuthority("ADMIN")
 				.anyRequest().authenticated())
 				.httpBasic(httpBasic -> httpBasic.authenticationEntryPoint(this.authEntry))
 				.exceptionHandling(ex -> ex.accessDeniedHandler(this.accessEntry))
