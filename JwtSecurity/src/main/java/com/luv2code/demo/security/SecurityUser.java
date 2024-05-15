@@ -1,10 +1,8 @@
 package com.luv2code.demo.security;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -12,9 +10,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.luv2code.demo.entity.User;
 
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class SecurityUser implements UserDetails {
 
 	private static final long serialVersionUID = 1L;
@@ -22,14 +20,13 @@ public class SecurityUser implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-
-		Set<SimpleGrantedAuthority> authorities = new HashSet<>();
-		authorities = user.getRole().stream()
-				.flatMap(role -> Stream.concat(Stream.of(new SimpleGrantedAuthority("ROLE_" + role.getName())),
-						role.getAuthorities().stream().map(auth -> new SimpleGrantedAuthority(auth.getName()))))
-				.collect(Collectors.toSet());
-
-		return authorities;
+		
+		if(user.getRoles().isEmpty()) {
+			return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+		}
+		
+		return user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+				.collect(Collectors.toList());
 	}
 
 	@Override

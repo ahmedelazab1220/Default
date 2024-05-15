@@ -3,7 +3,6 @@ package com.luv2code.demo.controller;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -15,27 +14,33 @@ public class HomeController {
 	public String admin() {
 		return "Hi ADMIN!";
 	}
+	
+	@GetMapping("/admin/write")
+	public String write() {
+		return "Hi ADMIN , you can write!";
+	}
 
 	@GetMapping("/user")
-	@PreAuthorize("hasAuthority('USER')")
+	@PreAuthorize("hasAnyRole('USER','ADMIN')")
 	public String user() {
 		return "Hi user!";
 	}
 
 	@GetMapping("/root")
-	@PostAuthorize("hasAuthority('ADMIN') or hasAuthority('USER')")
+	@PreAuthorize("hasRole('ADMIN') and hasAuthority('ADMIN_READ') and hasAuthority('ADMIN_WRITE')")
 	public String root() {
 		return "Hi root!";
+	}
+	
+	@GetMapping("/subroot")
+	@PostAuthorize("hasRole('ADMIN') and hasAnyAuthority('ADMIN_READ' , 'ADMIN_WRITE')")
+	public String subroot() {
+		return "Hi subroot!";
 	}
 
 	@GetMapping("")
 	public String demo() {
 		return "Hi EveryBody!";
-	}
-
-	@PostMapping("/action")
-	public String action() {
-		return "post mapping";
 	}
 
 }

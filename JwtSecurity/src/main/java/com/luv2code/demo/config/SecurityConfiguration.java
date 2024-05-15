@@ -1,5 +1,7 @@
 package com.luv2code.demo.config;
 
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,8 +14,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.luv2code.demo.exc.CustomAccessDeniedHandler;
+import com.luv2code.demo.config.filter.JwtAuthenticationFilter;
 import com.luv2code.demo.exc.CustomAuthenticationEntry;
 import com.luv2code.demo.service.UserService;
 
@@ -23,35 +26,33 @@ import lombok.AllArgsConstructor;
 @EnableWebSecurity
 @EnableMethodSecurity
 @AllArgsConstructor
-public class SecurityConfig {
+public class SecurityConfiguration {
 
+	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final UserService userService;
-
-	private final CustomAuthenticationEntry authEntry;
-
-	private final CustomAccessDeniedHandler accessEntry;	
-
+    private final CustomAuthenticationEntry authEntry;
+    
+	
 	@Bean
-	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
+	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+		
 		http.csrf(csrf -> csrf.disable())
-				.authorizeHttpRequests(request -> 
-				 request.requestMatchers("/api/v2/auth", "/api/v1/auth/**").permitAll()
-				.requestMatchers("/api/v2/auth/admin").hasRole("ADMIN")
-				.requestMatchers("/api/v2/auth/admin/write").hasAuthority("ADMIN_WRITE")
-				.anyRequest().authenticated())
-				.httpBasic(httpBasic -> httpBasic.authenticationEntryPoint(this.authEntry))
-				.exceptionHandling(ex -> ex.accessDeniedHandler(this.accessEntry))
-				.formLogin(form -> form.permitAll());
-
+		    .authorizeHttpRequests(request -> 
+	         request.requestMatchers("/api/v2/auth" , "/api/v1/auth/**").permitAll()
+	        .anyRequest().authenticated())
+		    .authenticationProvider(authenticationProvider())
+		    .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
+		    .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+		    .exceptionHandling(ex -> ex.authenticationEntryPoint(this.authEntry));
+		
 		return http.build();
 	}
-
+	
 	@Bean
 	PasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-
+	
 	@Bean
 	AuthenticationProvider authenticationProvider() {
 		DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
@@ -59,10 +60,11 @@ public class SecurityConfig {
 		provider.setPasswordEncoder(passwordEncoder());
 		return provider;
 	}
-
+	
 	@Bean
-	AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+	AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception{
 		return config.getAuthenticationManager();
 	}
+	
 	
 }

@@ -3,6 +3,7 @@ package com.luv2code.demo.entity;
 import java.util.Set;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -18,26 +19,27 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Entity
+@Table(name = "users")
 @Data
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "roles")
-public class Role {
-	
+@NoArgsConstructor
+public class User {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	
-	private String name;
+	@Column(name = "username", unique = true)
+	private String username;
 	
-	@ManyToMany(cascade = CascadeType.ALL , fetch = FetchType.EAGER)
-	@JoinTable(name = "roles_authorities",
-      joinColumns = @JoinColumn(name = "role_id"),
-      inverseJoinColumns = @JoinColumn(name = "authority_id")
-    )
-	private Set<Authority> authorities;
+	@Column(name = "password")
+	private String password;
+	
+	@ManyToMany(fetch = FetchType.EAGER , cascade = CascadeType.ALL)
+	@JoinTable(name = "user_roles" , joinColumns = @JoinColumn(name="user_id") , inverseJoinColumns = @JoinColumn(name="role_id"))
+	private Set<Role> roles;
 	
 }
