@@ -1,5 +1,6 @@
 package com.luv2code.demo.service.impl;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import org.springframework.security.core.Authentication;
@@ -26,20 +27,26 @@ public class LogoutHandlerImpl implements LogoutHandler {
 
 	@Override
 	public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-
 		String authHeader = request.getHeader("Authorization");
 		String jwt = null;
 		String username = null;
+		Instant expirationTime = null;
 		if (authHeader != null && authHeader.startsWith("Bearer ")) {
 			jwt = authHeader.substring(7);
 			username = jwtService.extractUsername(jwt);
+			expirationTime = jwtService.extractExpiration(jwt).toInstant();
 		}
-
+        
 		Optional<User> user = userRepository.findByUsername(username);
 		
-		BlacklistedToken tokenBlackList = BlacklistedToken.builder().token(jwt).user(user.get()).build();
+		BlacklistedToken tokenBlackList = BlacklistedToken.builder().token(jwt).expire(expirationTime).user(user.get()).build();
 		tokenBlackListService.save(tokenBlackList);
 
+		handleLogoutSuccess(request, response);
 	}
+	
+	private void handleLogoutSuccess(HttpServletRequest request, HttpServletResponse response) {
+        response.setStatus(HttpServletResponse.SC_OK);
+    }
 
 }

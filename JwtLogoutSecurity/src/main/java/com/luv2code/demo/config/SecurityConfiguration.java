@@ -15,8 +15,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
 
 import com.luv2code.demo.config.filter.JwtAuthenticationFilter;
 import com.luv2code.demo.exc.CustomAuthenticationEntry;
@@ -33,7 +31,6 @@ public class SecurityConfiguration {
 	private final JwtAuthenticationFilter jwtAuthenticationFilter;
 	private final UserService userService;
 	private final CustomAuthenticationEntry authEntry;
-	private final LogoutHandler logoutHandler;
 
 	@Bean
 	SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -45,8 +42,7 @@ public class SecurityConfiguration {
 				.sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
 				.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 				.exceptionHandling(ex -> ex.authenticationEntryPoint(this.authEntry))
-				.logout(logout -> logout.logoutUrl("/api/v1/auth/logout").addLogoutHandler(logoutHandler)
-						.logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler()));
+				.logout(logout -> logout.logoutSuccessUrl("/api/v1/auth/logout"));
 
 		return http.build();
 	}

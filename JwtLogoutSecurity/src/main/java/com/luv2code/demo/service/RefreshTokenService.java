@@ -10,6 +10,6 @@ public interface RefreshTokenService {
 
 	RefreshToken verifyExpiration(RefreshToken token);
 
-	void deleteById(int theId);
+	void deleteByEntity(RefreshToken refreshToken);
 
 }

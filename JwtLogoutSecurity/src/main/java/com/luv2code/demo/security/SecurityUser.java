@@ -22,7 +22,7 @@ public class SecurityUser implements UserDetails {
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 
 		if (user.getRoles().isEmpty()) {
-			return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+			 return List.of(new SimpleGrantedAuthority("ROLE_USER"));
 		}
 
 		return user.getRoles().stream().map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))

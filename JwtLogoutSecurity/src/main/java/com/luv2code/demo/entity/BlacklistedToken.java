@@ -1,5 +1,7 @@
 package com.luv2code.demo.entity;
 
+import java.time.Instant;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -29,6 +31,8 @@ public class BlacklistedToken {
 	private int id;
 
 	private String token;
+	
+	private Instant expire;
 	
 	@ManyToOne
 	@JoinColumn(name="user_id")

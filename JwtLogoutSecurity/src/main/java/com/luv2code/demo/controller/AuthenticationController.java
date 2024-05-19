@@ -1,6 +1,9 @@
 package com.luv2code.demo.controller;
 
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +20,8 @@ import com.luv2code.demo.service.AuthenticationService;
 import com.luv2code.demo.service.JwtService;
 import com.luv2code.demo.service.RefreshTokenService;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 
 @RestController
@@ -27,6 +32,7 @@ public class AuthenticationController {
 	private final AuthenticationService userService;
 	private final RefreshTokenService refreshTokenService;
 	private final JwtService jwtService;
+	private final LogoutHandler logoutHandler;
 
 	@PostMapping("/register")
 	public ResponseEntity<User> signUp(@RequestBody RegisterRequest registerRequest) {
@@ -36,6 +42,21 @@ public class AuthenticationController {
 	@PostMapping("/login")
 	public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
 		return ResponseEntity.ok(userService.login(loginRequest));
+	}
+	
+	@PostMapping("/logout")
+	public ResponseEntity<?> logout(HttpServletRequest request , HttpServletResponse response , @RequestBody(required = true) RefreshTokenRequest refreshTokenRequest) {
+		
+		logoutHandler.logout(request, response, null);
+	    System.out.println(refreshTokenRequest.getRefresh_token());
+	    refreshTokenService.deleteByEntity(refreshTokenService.findByToken(refreshTokenRequest.getRefresh_token()));
+		
+		return ResponseEntity.ok(Map.of(
+	            "message", "Successfully logged out.",
+	            "status", HttpServletResponse.SC_OK,
+	            "timestamp", System.currentTimeMillis(),
+	            "path", request.getRequestURI()
+	        ));
 	}
 
 	@PostMapping("/refreshToken")

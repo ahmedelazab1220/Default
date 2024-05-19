@@ -29,22 +29,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
 	@Override
 	public RefreshToken createRefreshToken(String username) {
-
-		Optional<RefreshToken> oldToken = refreshTokenRepository
-				.findByUserId(userRepository.findByUsername(username).get().getId());
-
+		
 		RefreshToken refreshToken = RefreshToken.builder().user(userRepository.findByUsername(username).get())
 				// set expire of refresh token to 10 days you can configure it
 				// application.properties file
 				.token(UUID.randomUUID().toString()).expiryDate(Instant.now().plusMillis(refreshTokenExpiration))
 				.build();
 
-		// if user make login i create new refresh token & access token , i delete old
-		// refresh token from database
-		// you can leave it
-		if (oldToken.isPresent()) {
-			refreshTokenRepository.deleteById(oldToken.get().getId());
-		}
 
 		return refreshTokenRepository.save(refreshToken);
 	}
@@ -71,8 +62,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 	}
 
 	@Override
-	public void deleteById(int theId) {
-		refreshTokenRepository.deleteById(theId);
+	public void deleteByEntity(RefreshToken refreshToken) {
+		refreshTokenRepository.delete(refreshToken);
 	}
 
 }

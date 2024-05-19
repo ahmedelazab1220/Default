@@ -16,7 +16,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -47,11 +46,12 @@ public class User {
 	@JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles;
 
-	@OneToOne(mappedBy = "user")
+	@OneToMany(mappedBy = "user" , cascade = CascadeType.REMOVE)
 	@JsonManagedReference
-	private RefreshToken refreshToken;
+	private List<RefreshToken> refreshToken;
 	
 	@OneToMany(mappedBy = "user" , cascade = CascadeType.REMOVE)
+	@JsonManagedReference
 	private List<BlacklistedToken> blackListToken;
 
 }

@@ -1,6 +1,7 @@
 package com.luv2code.demo.exc;
 
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
@@ -81,6 +82,12 @@ public class RestExceptionHandler {
 	@ExceptionHandler(RefreshTokenExpiredException.class)
 	public ErrorResponse handleRefreshTokenExpiredException(RefreshTokenExpiredException ex, WebRequest request) {
 		return new ErrorResponse(StatusCode.FORBIDDEN, "Refresh Token Is Expired!", "RefreshTokenExpiredException",
+				ex.getMessage(), request.getDescription(false).substring(4), System.currentTimeMillis());
+	}
+	
+	@ExceptionHandler(HttpMessageNotReadableException.class)
+    public ErrorResponse handleHttpMessageNotReadableException(HttpMessageNotReadableException ex , WebRequest request){
+		return new ErrorResponse(StatusCode.INVALID_ARGUMENT, "Invalid request body. Please provide valid data", "HttpMessageNotReadableException",
 				ex.getMessage(), request.getDescription(false).substring(4), System.currentTimeMillis());
 	}
 
